@@ -231,3 +231,33 @@ class ChapterService:
         
         return created_chapters
 
+    def bulk_update_textbook_mapping(
+        self,
+        subject_id: UUID,
+        mappings: List[dict],
+        creator_id: UUID
+    ) -> int:
+        """목차-교재 매핑 일괄 수정"""
+        self._verify_subject_ownership(subject_id, creator_id)
+        
+        updated_count = 0
+        for mapping in mappings:
+            chapter_id = mapping.get("chapter_id")
+            textbook_page = mapping.get("textbook_page")
+            
+            chapter = self.session.get(Chapter, chapter_id)
+            if chapter and chapter.subject_id == subject_id:
+                # 소유권 확인
+                statement = select(Chapter).join(Subject).join(Certificate).where(
+                    Chapter.id == chapter_id,
+                    Certificate.creator_id == creator_id
+                )
+                verified_chapter = self.session.exec(statement).first()
+                if verified_chapter:
+                    chapter.textbook_page = textbook_page
+                    self.session.add(chapter)
+                    updated_count += 1
+        
+        self.session.commit()
+        return updated_count
+

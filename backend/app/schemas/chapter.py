@@ -62,3 +62,14 @@ class ChapterBulkCreate(BaseModel):
     """목차 일괄 생성 (엑셀 업로드용)"""
     chapters: List[ChapterCreate]
 
+
+class ChapterMappingBulkItem(BaseModel):
+    """일괄 매핑 항목"""
+    chapter_id: UUID
+    textbook_page: Optional[int] = None
+
+
+class ChapterMappingBulkUpdate(BaseModel):
+    """일괄 매핑 요청"""
+    mappings: List[ChapterMappingBulkItem]
+

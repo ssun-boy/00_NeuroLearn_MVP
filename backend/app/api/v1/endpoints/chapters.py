@@ -11,7 +11,8 @@ from app.schemas.chapter import (
     ChapterResponse,
     ChapterMappingUpdate,
     ChapterVideoMappingUpdate,
-    ChapterBulkCreate
+    ChapterBulkCreate,
+    ChapterMappingBulkUpdate
 )
 from app.schemas.auth import MessageResponse
 from app.services.chapter_service import ChapterService
@@ -152,4 +153,23 @@ async def update_video_mapping(
     """
     service = ChapterService(session)
     return service.update_video_mapping(chapter_id, data, current_user.id)
+
+
+@router.patch("/bulk-textbook-mapping")
+async def bulk_update_textbook_mapping(
+    subject_id: UUID,
+    data: ChapterMappingBulkUpdate,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    목차-교재 매핑 일괄 수정
+    """
+    service = ChapterService(session)
+    updated_count = service.bulk_update_textbook_mapping(
+        subject_id,
+        [m.model_dump() for m in data.mappings],
+        current_user.id
+    )
+    return {"updated_count": updated_count}
 

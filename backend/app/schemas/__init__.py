@@ -27,6 +27,8 @@ from app.schemas.chapter import (
     ChapterMappingUpdate,
     ChapterVideoMappingUpdate,
     ChapterBulkCreate,
+    ChapterMappingBulkItem,
+    ChapterMappingBulkUpdate,
 )
 from app.schemas.textbook import (
     TextbookCreate,
@@ -62,6 +64,8 @@ __all__ = [
     "ChapterMappingUpdate",
     "ChapterVideoMappingUpdate",
     "ChapterBulkCreate",
+    "ChapterMappingBulkItem",
+    "ChapterMappingBulkUpdate",
     # Textbook
     "TextbookCreate",
     "TextbookUpdate",

@@ -373,6 +373,14 @@ export default function ChaptersPage() {
             </Button>
             <h1 className="text-xl font-bold">목차 관리</h1>
           </div>
+          <Button 
+            onClick={() => router.push(
+              `/creator/certificates/${certificateId}/subjects/${subjectId}/mapping`
+            )}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
+            매핑 도구 →
+          </Button>
         </div>
       </header>
 
