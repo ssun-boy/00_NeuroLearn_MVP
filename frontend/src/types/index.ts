@@ -142,6 +142,52 @@ export interface ProficiencyWeightUpdateRequest {
   time_weight: number;
 }
 
+// ===== 목차 트리 노드 =====
+export interface ChapterTreeNode extends Chapter {
+  children: ChapterTreeNode[];
+}
+
+// ===== 목차 API 요청 =====
+export interface ChapterCreateRequest {
+  title: string;
+  parent_id?: string | null;
+  order_index?: number;
+}
+
+export interface ChapterUpdateRequest {
+  title?: string;
+  parent_id?: string | null;
+  order_index?: number;
+}
+
+export interface ChapterMappingUpdateRequest {
+  textbook_page: number | null;
+}
+
+export interface ChapterVideoMappingUpdateRequest {
+  video_id: string | null;
+  video_start_seconds: number | null;
+}
+
+// ===== 교재 API 요청 =====
+export interface TextbookCreateRequest {
+  title: string;
+  file_url: string;
+  total_pages: number;
+}
+
+export interface TextbookUpdateRequest {
+  title?: string;
+  total_pages?: number;
+}
+
+// ===== 파일 업로드 응답 =====
+export interface FileUploadResponse {
+  file_url: string;
+  file_name: string;
+  file_size: number;
+}
+
 // ===== 공통 응답 =====
 export interface MessageResponse {
   message: string;
