@@ -19,6 +19,21 @@ from app.schemas.subject import (
     ProficiencyWeightResponse,
     SubjectWithWeights,
 )
+from app.schemas.chapter import (
+    ChapterCreate,
+    ChapterUpdate,
+    ChapterResponse,
+    ChapterTreeNode,
+    ChapterMappingUpdate,
+    ChapterVideoMappingUpdate,
+    ChapterBulkCreate,
+)
+from app.schemas.textbook import (
+    TextbookCreate,
+    TextbookUpdate,
+    TextbookResponse,
+    FileUploadResponse,
+)
 
 __all__ = [
     # Auth
@@ -39,4 +54,17 @@ __all__ = [
     "ProficiencyWeightCreate",
     "ProficiencyWeightResponse",
     "SubjectWithWeights",
+    # Chapter
+    "ChapterCreate",
+    "ChapterUpdate",
+    "ChapterResponse",
+    "ChapterTreeNode",
+    "ChapterMappingUpdate",
+    "ChapterVideoMappingUpdate",
+    "ChapterBulkCreate",
+    # Textbook
+    "TextbookCreate",
+    "TextbookUpdate",
+    "TextbookResponse",
+    "FileUploadResponse",
 ]
