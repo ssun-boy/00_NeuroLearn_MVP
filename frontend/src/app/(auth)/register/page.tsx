@@ -1,95 +1,85 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Mail, Lock, User, BookOpen, GraduationCap } from 'lucide-react';
-import { toast } from 'sonner';
+import { Loader2, BookOpen, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+type UserRole = 'creator' | 'learner';
+
 export default function RegisterPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const defaultRole = searchParams.get('role') || 'learner';
-
+  const { register } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<UserRole>('learner');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: defaultRole as 'creator' | 'learner',
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleRoleChange = (role: 'creator' | 'learner') => {
-    setFormData((prev) => ({ ...prev, role }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
 
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('비밀번호가 일치하지 않습니다.');
+    // 비밀번호 일치 확인
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다');
       return;
     }
 
-    if (formData.password.length < 8) {
-      toast.error('비밀번호는 8자 이상이어야 합니다.');
+    // 비밀번호 최소 길이 확인
+    if (password.length < 6) {
+      setError('비밀번호는 6자 이상이어야 합니다');
+      return;
+    }
+
+    // 이름 최소 길이 확인
+    if (name.length < 2) {
+      setError('이름은 2자 이상이어야 합니다');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // TODO: 실제 API 연동
-      console.log('회원가입 시도:', {
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-      });
-
-      // 임시: 회원가입 성공 시뮬레이션
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      toast.success('회원가입이 완료되었습니다!');
-      router.push(`/login?role=${formData.role}`);
-    } catch (error) {
-      console.error('회원가입 실패:', error);
-      toast.error('회원가입에 실패했습니다. 다시 시도해주세요.');
+      await register({ email, password, name, role });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '회원가입에 실패했습니다');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="bg-white/80 backdrop-blur shadow-xl shadow-slate-200/50 border-0">
-      <CardHeader className="space-y-1 text-center">
+    <Card className="w-full bg-white/80 backdrop-blur shadow-xl shadow-slate-200/50 border-0">
+      <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">회원가입</CardTitle>
         <CardDescription>뉴로런과 함께 학습을 시작하세요</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
+          {error && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">
+              {error}
+            </div>
+          )}
+
           {/* 역할 선택 */}
           <div className="space-y-2">
             <Label>역할 선택</Label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => handleRoleChange('creator')}
+                onClick={() => setRole('creator')}
+                disabled={isLoading}
                 className={cn(
                   'flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all',
-                  formData.role === 'creator'
+                  role === 'creator'
                     ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
                     : 'border-slate-200 hover:border-slate-300'
                 )}
@@ -100,10 +90,11 @@ export default function RegisterPage() {
               </button>
               <button
                 type="button"
-                onClick={() => handleRoleChange('learner')}
+                onClick={() => setRole('learner')}
+                disabled={isLoading}
                 className={cn(
                   'flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all',
-                  formData.role === 'learner'
+                  role === 'learner'
                     ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
                     : 'border-slate-200 hover:border-slate-300'
                 )}
@@ -118,92 +109,78 @@ export default function RegisterPage() {
           {/* 이름 */}
           <div className="space-y-2">
             <Label htmlFor="name">이름</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="홍길동"
-                value={formData.name}
-                onChange={handleChange}
-                className="pl-10"
-                required
-              />
-            </div>
+            <Input
+              id="name"
+              type="text"
+              placeholder="홍길동"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={isLoading}
+              minLength={2}
+              maxLength={50}
+            />
           </div>
 
           {/* 이메일 */}
           <div className="space-y-2">
             <Label htmlFor="email">이메일</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="name@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                className="pl-10"
-                required
-              />
-            </div>
+            <Input
+              id="email"
+              type="email"
+              placeholder="example@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={isLoading}
+            />
           </div>
 
           {/* 비밀번호 */}
           <div className="space-y-2">
             <Label htmlFor="password">비밀번호</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="8자 이상 입력해주세요"
-                value={formData.password}
-                onChange={handleChange}
-                className="pl-10"
-                required
-                minLength={8}
-              />
-            </div>
+            <Input
+              id="password"
+              type="password"
+              placeholder="6자 이상 입력해주세요"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              minLength={6}
+            />
           </div>
 
           {/* 비밀번호 확인 */}
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">비밀번호 확인</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                placeholder="비밀번호를 다시 입력해주세요"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="pl-10"
-                required
-              />
-            </div>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="비밀번호를 다시 입력해주세요"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={isLoading}
+            />
+            {confirmPassword && password !== confirmPassword && (
+              <p className="text-xs text-red-500">비밀번호가 일치하지 않습니다</p>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <Button
             type="submit"
             className="w-full bg-indigo-600 hover:bg-indigo-700"
-            disabled={isLoading}
+            disabled={isLoading || (confirmPassword !== '' && password !== confirmPassword)}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            회원가입
+            {isLoading ? '회원가입 중...' : '회원가입'}
           </Button>
-          <p className="text-sm text-center text-slate-600">
+          <p className="text-sm text-slate-600">
             이미 계정이 있으신가요?{' '}
-            <Link
-              href={`/login?role=${formData.role}`}
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              로그인하기
+            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+              로그인
             </Link>
           </p>
         </CardFooter>
@@ -211,4 +188,3 @@ export default function RegisterPage() {
     </Card>
   );
 }
-

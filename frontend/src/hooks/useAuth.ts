@@ -1,25 +1,27 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { User } from '@/types';
-import { api } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
+import { User, LoginRequest, LoginResponse, RegisterRequest } from '@/types';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
-  const checkAuth = useCallback(async () => {
+  // 현재 사용자 정보 가져오기
+  const fetchUser = useCallback(async () => {
     const token = localStorage.getItem('access_token');
     if (!token) {
-      setUser(null);
       setIsLoading(false);
       return;
     }
 
     try {
-      const userData = await api.auth.me() as User;
+      const userData = await apiClient<User>('/api/v1/auth/me');
       setUser(userData);
-    } catch {
+    } catch (error) {
       localStorage.removeItem('access_token');
       setUser(null);
     } finally {
@@ -28,26 +30,50 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    fetchUser();
+  }, [fetchUser]);
 
-  const login = async (email: string, password: string) => {
-    const response = await api.auth.login({ email, password }) as { access_token: string; user: User };
+  // 로그인
+  const login = async (data: LoginRequest): Promise<void> => {
+    const response = await apiClient<LoginResponse>('/api/v1/auth/login', {
+      method: 'POST',
+      body: data,
+    });
+
     localStorage.setItem('access_token', response.access_token);
     setUser(response.user);
-    return response.user;
+
+    // 역할에 따라 리다이렉트
+    if (response.user.role === 'creator') {
+      router.push('/creator/dashboard');
+    } else {
+      router.push('/learner/dashboard');
+    }
   };
 
+  // 회원가입
+  const register = async (data: RegisterRequest): Promise<void> => {
+    const response = await apiClient<LoginResponse>('/api/v1/auth/register', {
+      method: 'POST',
+      body: data,
+    });
+
+    localStorage.setItem('access_token', response.access_token);
+    setUser(response.user);
+
+    // 역할에 따라 리다이렉트
+    if (response.user.role === 'creator') {
+      router.push('/creator/dashboard');
+    } else {
+      router.push('/learner/dashboard');
+    }
+  };
+
+  // 로그아웃
   const logout = () => {
     localStorage.removeItem('access_token');
     setUser(null);
-  };
-
-  const register = async (data: { email: string; password: string; name: string; role: string }) => {
-    const response = await api.auth.register(data) as { access_token: string; user: User };
-    localStorage.setItem('access_token', response.access_token);
-    setUser(response.user);
-    return response.user;
+    router.push('/');
   };
 
   return {
@@ -55,8 +81,8 @@ export function useAuth() {
     isLoading,
     isAuthenticated: !!user,
     login,
-    logout,
     register,
-    checkAuth,
+    logout,
+    fetchUser,
   };
 }
