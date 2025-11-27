@@ -255,3 +255,64 @@ export interface MessageResponse {
 export interface ApiError {
   detail: string;
 }
+
+// ===== 검수 =====
+// 검수 상태
+export type ValidationStatus = 'ok' | 'warning' | 'error';
+
+// 목차 검수 항목
+export interface ChapterValidationItem {
+  id: string;
+  title: string;
+  depth: number;
+  has_textbook_mapping: boolean;
+  has_video_mapping: boolean;
+  textbook_page: number | null;
+  video_start_seconds: number | null;
+  status: ValidationStatus;
+  message: string | null;
+}
+
+// 문제 검수 항목
+export interface QuestionValidationItem {
+  id: string;
+  content: string;
+  has_textbook_mapping: boolean;
+  textbook_page: number | null;
+  status: ValidationStatus;
+  message: string | null;
+}
+
+// 검수 요약
+export interface ValidationSummary {
+  total: number;
+  with_textbook: number;
+  with_video?: number;
+  ok: number;
+  warning: number;
+  error?: number;
+  textbook_percentage: number;
+  video_percentage?: number;
+}
+
+// 목차 검수 결과
+export interface ChapterValidationResult {
+  summary: ValidationSummary;
+  items: ChapterValidationItem[];
+}
+
+// 문제 검수 결과
+export interface QuestionValidationResult {
+  summary: ValidationSummary;
+  items: QuestionValidationItem[];
+}
+
+// 전체 검수 결과
+export interface FullValidationResult {
+  subject_id: string;
+  subject_name: string;
+  chapter_validation: ChapterValidationResult;
+  question_validation: QuestionValidationResult;
+  overall_status: ValidationStatus;
+  completion_percentage: number;
+}

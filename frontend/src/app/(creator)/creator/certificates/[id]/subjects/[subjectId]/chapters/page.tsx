@@ -405,6 +405,13 @@ export default function ChaptersPage() {
             >
               ❓ 문제 관리
             </Button>
+            <Button 
+              onClick={() => router.push(
+                `/creator/certificates/${certificateId}/subjects/${subjectId}/validation`
+              )}
+            >
+              ✅ 검수
+            </Button>
           </div>
         </div>
       </header>

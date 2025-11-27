@@ -54,6 +54,15 @@ from app.schemas.question import (
     QuestionMappingBulkUpdate,
     QuestionStats,
 )
+from app.schemas.validation import (
+    ValidationStatus,
+    ChapterValidationItem,
+    QuestionValidationItem,
+    ValidationSummary,
+    ChapterValidationResult,
+    QuestionValidationResult,
+    FullValidationResult,
+)
 
 __all__ = [
     # Auth
@@ -105,4 +114,12 @@ __all__ = [
     "QuestionMappingBulkItem",
     "QuestionMappingBulkUpdate",
     "QuestionStats",
+    # Validation
+    "ValidationStatus",
+    "ChapterValidationItem",
+    "QuestionValidationItem",
+    "ValidationSummary",
+    "ChapterValidationResult",
+    "QuestionValidationResult",
+    "FullValidationResult",
 ]
