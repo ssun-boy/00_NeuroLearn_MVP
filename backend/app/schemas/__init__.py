@@ -36,6 +36,14 @@ from app.schemas.textbook import (
     TextbookResponse,
     FileUploadResponse,
 )
+from app.schemas.video import (
+    VideoCreate,
+    VideoUpdate,
+    VideoResponse,
+    VideoBulkCreate,
+    VideoMappingInfo,
+    ChapterWithVideoMapping,
+)
 
 __all__ = [
     # Auth
@@ -71,4 +79,11 @@ __all__ = [
     "TextbookUpdate",
     "TextbookResponse",
     "FileUploadResponse",
+    # Video
+    "VideoCreate",
+    "VideoUpdate",
+    "VideoResponse",
+    "VideoBulkCreate",
+    "VideoMappingInfo",
+    "ChapterWithVideoMapping",
 ]

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { apiClient } from '@/lib/api';
@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, Edit, Trash2, BookOpen, Video, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash2, BookOpen, Video, Loader2, Upload, Download } from 'lucide-react';
 
 // 목차 트리 아이템 컴포넌트
 function ChapterTreeItem({ 
@@ -56,21 +56,24 @@ function ChapterTreeItem({
         style={{ paddingLeft: `${depth * 24 + 12}px` }}
         onClick={() => onSelect(chapter.id)}
       >
-        {/* 계층 표시 */}
-        <span className="text-gray-400 text-sm w-6">
-          {depth === 0 ? '📁' : depth === 1 ? '📄' : '📝'}
-        </span>
-        
         {/* 제목 */}
         <span className="flex-1 font-medium">{chapter.title}</span>
         
         {/* 매핑 상태 아이콘 */}
-        <span className={`text-sm ${hasTextbook ? 'text-green-500' : 'text-gray-300'}`} title="교재 매핑">
-          📖
-        </span>
-        <span className={`text-sm ${hasVideo ? 'text-green-500' : 'text-gray-300'}`} title="영상 매핑">
-          🎬
-        </span>
+        <div className="flex items-center gap-1">
+          <span 
+            className={`text-sm ${hasTextbook ? 'text-green-500' : 'text-gray-400'}`} 
+            title="교재 매핑"
+          >
+            📖
+          </span>
+          <span 
+            className={`text-sm ${hasVideo ? 'text-green-500' : 'text-gray-400'}`} 
+            title="영상 매핑"
+          >
+            🎬
+          </span>
+        </div>
         
         {/* 액션 버튼들 */}
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -150,6 +153,8 @@ export default function ChaptersPage() {
   const [uploadedFile, setUploadedFile] = useState<FileUploadResponse | null>(null);
   const [newTextbookTitle, setNewTextbookTitle] = useState('');
   const [newTextbookPages, setNewTextbookPages] = useState<number>(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string>('');
 
   // 데이터 불러오기
   const fetchData = async () => {
@@ -269,6 +274,8 @@ export default function ChaptersPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    setSelectedFileName(file.name);
 
     setIsUploading(true);
     try {
@@ -373,55 +380,32 @@ export default function ChaptersPage() {
             </Button>
             <h1 className="text-xl font-bold">목차 관리</h1>
           </div>
-          <Button 
-            onClick={() => router.push(
-              `/creator/certificates/${certificateId}/subjects/${subjectId}/mapping`
-            )}
-            className="bg-indigo-600 hover:bg-indigo-700"
-          >
-            매핑 도구 →
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => router.push(
+                `/creator/certificates/${certificateId}/subjects/${subjectId}/videos`
+              )}
+            >
+              🎬 영상 관리
+            </Button>
+            <Button 
+              onClick={() => router.push(
+                `/creator/certificates/${certificateId}/subjects/${subjectId}/mapping`
+              )}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
+              📖 교재 매핑
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 왼쪽: 목차 트리 */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>목차 구조</CardTitle>
-                <Button onClick={() => handleOpenAddChapter(null)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  최상위 목차
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {chapters.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    아직 목차가 없습니다. 새 목차를 추가해보세요!
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    {chapters.map((chapter) => (
-                      <ChapterTreeItem
-                        key={chapter.id}
-                        chapter={chapter}
-                        onAddChild={handleOpenAddChapter}
-                        onEdit={handleOpenEditChapter}
-                        onDelete={handleDeleteChapter}
-                        onSelect={setSelectedChapterId}
-                        selectedId={selectedChapterId}
-                      />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* 오른쪽: 교재 관리 */}
-          <div>
+          <div className="lg:col-span-2 space-y-6">
+            {/* 교재 관리 - 목차 위로 이동 */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -461,23 +445,40 @@ export default function ChaptersPage() {
 
                 {/* 새 교재 업로드 */}
                 <div className="border-t pt-4">
-                  <Label htmlFor="pdf-upload">새 교재 업로드</Label>
-                  <Input
-                    id="pdf-upload"
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileUpload}
-                    disabled={isUploading}
-                    className="mt-2"
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={fileInputRef}
+                      id="pdf-upload"
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="flex items-center gap-2"
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          업로드 중...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4" />
+                          교재 추가 등록
+                        </>
+                      )}
+                    </Button>
+                    {selectedFileName && !isUploading && (
+                      <span className="text-sm text-gray-600">{selectedFileName}</span>
+                    )}
+                  </div>
                   
-                  {isUploading && (
-                    <div className="mt-2 text-sm text-gray-500 flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      업로드 중...
-                    </div>
-                  )}
-
                   {uploadedFile && (
                     <div className="mt-4 space-y-3">
                       <p className="text-sm text-green-600 flex items-center gap-2">
@@ -521,6 +522,79 @@ export default function ChaptersPage() {
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* 목차 구조 */}
+            <Card>
+              <CardHeader className="flex flex-col gap-4">
+                <div className="flex flex-row items-center justify-between">
+                  <CardTitle>목차 구조</CardTitle>
+                  <Button 
+                    onClick={() => handleOpenAddChapter(null)}
+                    className="ml-[189px]"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    최상위 목차
+                  </Button>
+                </div>
+                {/* 양식 다운로드, 일괄등록, AI목차 추출 버튼 */}
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      // 양식 다운로드 기능 (추후 구현)
+                      alert('양식 다운로드 기능은 준비 중입니다.');
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    양식 다운로드
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      // 목차 일괄등록 기능 (추후 구현)
+                      alert('목차 일괄등록 기능은 준비 중입니다.');
+                    }}
+                  >
+                    <Upload className="h-4 w-4 mr-1" />
+                    목차 일괄등록
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled
+                    className="opacity-50 cursor-not-allowed"
+                    onClick={() => {
+                      // AI목차 추출 기능 (개발중)
+                    }}
+                  >
+                    🤖 AI목차 추출 (개발중)
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {chapters.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    아직 목차가 없습니다. 새 목차를 추가해보세요!
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    {chapters.map((chapter) => (
+                      <ChapterTreeItem
+                        key={chapter.id}
+                        chapter={chapter}
+                        onAddChild={handleOpenAddChapter}
+                        onEdit={handleOpenEditChapter}
+                        onDelete={handleDeleteChapter}
+                        onSelect={setSelectedChapterId}
+                        selectedId={selectedChapterId}
+                      />
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

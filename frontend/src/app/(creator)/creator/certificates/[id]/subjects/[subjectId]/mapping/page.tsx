@@ -59,27 +59,26 @@ function MappingChapterItem({
         style={{ paddingLeft: `${depth * 20 + 12}px` }}
         onClick={() => onSelect(chapter)}
       >
-        {/* 계층 아이콘 */}
-        <span className="text-gray-400 text-sm">
-          {depth === 0 ? '📁' : depth === 1 ? '📄' : '📝'}
-        </span>
-
         {/* 제목 */}
         <span className="flex-1 text-sm font-medium truncate">
           {chapter.title}
         </span>
 
-        {/* 교재 매핑 상태 */}
-        <span className={`text-sm ${hasTextbookMapping ? 'text-green-500' : 'text-gray-300'}`}>
-          📖
-        </span>
-        
-        {/* 매핑된 페이지 번호 */}
-        {hasTextbookMapping && (
-          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-            p.{chapter.textbook_page}
+        {/* 매핑 상태 아이콘 및 페이지 번호 */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <span className={`text-sm ${hasTextbookMapping ? 'text-green-500' : 'text-gray-400'}`}>
+            📖
           </span>
-        )}
+          
+          {/* 매핑된 페이지 번호 - 항상 동일한 공간 확보 */}
+          <span className="text-xs min-w-[32px] text-center">
+            {hasTextbookMapping ? (
+              <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                {chapter.textbook_page}
+              </span>
+            ) : null}
+          </span>
+        </div>
       </div>
 
       {/* 하위 목차 */}

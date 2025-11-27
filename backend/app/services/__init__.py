@@ -4,6 +4,7 @@ from app.services.subject_service import SubjectService
 from app.services.chapter_service import ChapterService
 from app.services.textbook_service import TextbookService
 from app.services.file_service import FileService
+from app.services.video_service import VideoService
 
 __all__ = [
     "AuthService",
@@ -12,5 +13,6 @@ __all__ = [
     "ChapterService",
     "TextbookService",
     "FileService",
+    "VideoService",
 ]
 

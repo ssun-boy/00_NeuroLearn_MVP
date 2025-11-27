@@ -67,6 +67,7 @@ export interface Video {
   url: string;
   duration_seconds: number;
   order_index: number;
+  created_at: string;
 }
 
 // ===== 문제 =====
@@ -186,6 +187,28 @@ export interface FileUploadResponse {
   file_url: string;
   file_name: string;
   file_size: number;
+}
+
+// ===== 영상 API 요청 =====
+export interface VideoCreateRequest {
+  title: string;
+  url: string;
+  duration_seconds: number;
+  order_index?: number;
+}
+
+export interface VideoUpdateRequest {
+  title?: string;
+  url?: string;
+  duration_seconds?: number;
+  order_index?: number;
+}
+
+// ===== 시간 포맷 헬퍼 타입 =====
+export interface TimeFormat {
+  hours: number;
+  minutes: number;
+  seconds: number;
 }
 
 // ===== 공통 응답 =====
