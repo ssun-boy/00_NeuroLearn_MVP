@@ -29,14 +29,22 @@ export async function apiClient<T>(
     config.body = JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.detail || 'API 요청 실패');
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || `API 요청 실패: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    // 네트워크 오류 또는 fetch 실패
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new Error(`백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요. (${API_BASE_URL})`);
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 // API 함수들

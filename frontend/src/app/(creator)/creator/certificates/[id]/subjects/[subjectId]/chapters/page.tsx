@@ -382,20 +382,28 @@ export default function ChaptersPage() {
           </div>
           <div className="flex gap-2">
             <Button 
-              variant="outline"
-              onClick={() => router.push(
-                `/creator/certificates/${certificateId}/subjects/${subjectId}/videos`
-              )}
-            >
-              🎬 영상 관리
-            </Button>
-            <Button 
               onClick={() => router.push(
                 `/creator/certificates/${certificateId}/subjects/${subjectId}/mapping`
               )}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
               📖 교재 매핑
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => router.push(
+                `/creator/certificates/${certificateId}/subjects/${subjectId}/videos`
+              )}
+            >
+              🎬 영상 매핑
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => router.push(
+                `/creator/certificates/${certificateId}/subjects/${subjectId}/questions`
+              )}
+            >
+              ❓ 문제 관리
             </Button>
           </div>
         </div>

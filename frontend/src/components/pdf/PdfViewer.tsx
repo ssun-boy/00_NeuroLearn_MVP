@@ -162,9 +162,19 @@ export default function PdfViewer({
           <Button 
             size="sm"
             onClick={handlePageClick}
-            className={selectedPage === currentPage ? 'bg-green-600 hover:bg-green-700' : ''}
+            className={
+              selectedPage === currentPage 
+                ? 'bg-green-600 hover:bg-green-700' 
+                : selectedPage !== null && selectedPage !== currentPage
+                ? 'bg-orange-600 hover:bg-orange-700'
+                : ''
+            }
           >
-            {selectedPage === currentPage ? '✓ 매핑됨' : '이 페이지로 매핑'}
+            {selectedPage === null 
+              ? '페이지 매핑'
+              : selectedPage === currentPage 
+              ? '✓ 매핑됨' 
+              : '재매핑'}
           </Button>
         )}
       </div>

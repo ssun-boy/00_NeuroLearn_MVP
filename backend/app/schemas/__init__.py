@@ -44,6 +44,16 @@ from app.schemas.video import (
     VideoMappingInfo,
     ChapterWithVideoMapping,
 )
+from app.schemas.question import (
+    QuestionCreate,
+    QuestionUpdate,
+    QuestionResponse,
+    QuestionBulkCreate,
+    QuestionMappingUpdate,
+    QuestionMappingBulkItem,
+    QuestionMappingBulkUpdate,
+    QuestionStats,
+)
 
 __all__ = [
     # Auth
@@ -86,4 +96,13 @@ __all__ = [
     "VideoBulkCreate",
     "VideoMappingInfo",
     "ChapterWithVideoMapping",
+    # Question
+    "QuestionCreate",
+    "QuestionUpdate",
+    "QuestionResponse",
+    "QuestionBulkCreate",
+    "QuestionMappingUpdate",
+    "QuestionMappingBulkItem",
+    "QuestionMappingBulkUpdate",
+    "QuestionStats",
 ]

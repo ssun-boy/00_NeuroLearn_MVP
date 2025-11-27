@@ -15,11 +15,12 @@ class Question(SQLModel, table=True):
     
     content: str  # 문제 내용
     options: dict[str, Any] = Field(default={}, sa_column=Column(JSON))  # JSON 형태의 선택지
-    correct_answer: str  # 정답
+    correct_answer: str  # 정답 (인덱스를 문자열로 저장)
     explanation: str | None = Field(default=None)  # 해설
     
     # 교재 매핑
     textbook_page: int | None = Field(default=None)
+    order_index: int = Field(default=0)  # 정렬 순서
     
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

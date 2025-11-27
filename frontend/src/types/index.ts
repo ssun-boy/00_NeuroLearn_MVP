@@ -77,9 +77,11 @@ export interface Question {
   content: string;
   options: string[];
   correct_answer: number;
-  explanation: string;
-  textbook_page: number | null;
+  explanation: string | null;
   chapter_id: string | null;
+  textbook_page: number | null;
+  order_index: number;
+  created_at: string;
 }
 
 // ===== 확장 타입 (관계 포함) =====
@@ -209,6 +211,39 @@ export interface TimeFormat {
   hours: number;
   minutes: number;
   seconds: number;
+}
+
+// ===== 문제 API 요청 =====
+export interface QuestionCreateRequest {
+  content: string;
+  options: string[];
+  correct_answer: number;
+  explanation?: string;
+  chapter_id?: string;
+  textbook_page?: number;
+  order_index?: number;
+}
+
+export interface QuestionUpdateRequest {
+  content?: string;
+  options?: string[];
+  correct_answer?: number;
+  explanation?: string;
+  chapter_id?: string | null;
+  textbook_page?: number | null;
+  order_index?: number;
+}
+
+export interface QuestionMappingUpdateRequest {
+  textbook_page: number | null;
+  chapter_id?: string | null;
+}
+
+// ===== 문제 통계 =====
+export interface QuestionStats {
+  total_count: number;
+  mapped_count: number;
+  unmapped_count: number;
 }
 
 // ===== 공통 응답 =====

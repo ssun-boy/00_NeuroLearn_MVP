@@ -11,13 +11,14 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# CORS 설정
+# CORS 설정 (개발 환경) - 모든 origin 허용
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js 개발 서버
-    allow_credentials=True,
+    allow_origins=["*"],  # 개발 환경에서는 모든 origin 허용
+    allow_credentials=False,  # allow_origins=["*"]일 때는 False
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # 정적 파일 서빙 (업로드된 파일)
